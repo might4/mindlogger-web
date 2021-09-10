@@ -8,6 +8,7 @@ import Checkbox from '../../widgets/Checkbox';
 import AgeSelector from '../../widgets/AgeSelector';
 import TextInput from '../../widgets/TextInput';
 import Slider from '../../widgets/Slider/index';
+import Dropdown from '../../widgets/Dropdown';
 
 import "./style.css";
 
@@ -34,6 +35,8 @@ const Item = (props) => {
         return <Slider {...props} handleChange={onChange} />;
       case "ageSelector":
         return <AgeSelector {...props} handleChange={onChange} />;
+      case "dropdownList":
+        return <Dropdown {...props} handleChange={onChange} values={values} />;
       default:
         return <div />;
     }

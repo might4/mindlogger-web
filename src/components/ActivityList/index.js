@@ -98,7 +98,8 @@ export const ActivityList = ({ inProgress, finishedEvents }) => {
           || item.inputType === "checkox"
           || item.inputType === "slider"
           || item.inputType === "ageSelector"
-          || item.inputType === "text";
+          || item.inputType === "text"
+          || item.inputType === "dropdownList";
       });
 
       return supportedItems.length && !act.isPrize;
