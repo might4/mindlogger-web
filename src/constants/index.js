@@ -88,6 +88,7 @@ export const IS_RESPONSE_IDENTIFIER = "reprolib:terms/isResponseIdentifier";
 export const IS_REVIEWER_ACTIVITY = "reprolib:terms/isReviewerActivity";
 export const DISABLE_SUMMARY = "reprolib:terms/disable_summary";
 export const NEXT_ACTIVITY = "reprolib:terms/nextActivity";
+export const HIDE_ACTIVITY = "reprolib:terms/hideActivity";
 
 export const Statuses = {
   LOADING: 'loading',
