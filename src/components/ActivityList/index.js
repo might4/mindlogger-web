@@ -11,20 +11,20 @@ import {
   Row,
   Col,
 } from 'react-bootstrap'
-import Avatar from 'react-avatar';
 import _ from 'lodash';
+import * as R from 'ramda';
+import Avatar from 'react-avatar';
 
 // Local
-import { delayedExec, clearExec } from '../../util/interval';
 import sortActivities from './sortActivities';
+import { delayedExec, clearExec } from '../../util/interval';
 import { inProgressSelector, currentScreenIndexSelector } from '../../state/responses/responses.selectors';
-import { finishedEventsSelector } from '../../state/app/app.selectors';
+import { finishedEventsSelector, startedTimesSelector } from '../../state/app/app.selectors';
 import { appletCumulativeActivities, appletsSelector } from '../../state/applet/applet.selectors';
-import { setCurrentActivity } from '../../state/app/app.reducer';
+import { setActivityStartTime, setCurrentActivity } from '../../state/app/app.reducer';
 import { setCurrentScreen } from '../../state/responses/responses.reducer';
 import { createResponseInProgress, setAnswer } from '../../state/responses/responses.reducer';
 import { parseAppletEvents } from '../../services/json-ld';
-import * as R from 'ramda';
 
 import AboutModal from '../AboutModal';
 import ActivityItem from './ActivityItem';
@@ -49,6 +49,7 @@ export const ActivityList = ({ inProgress, finishedEvents }) => {
     publicId && applet.publicId && applet.publicId.includes(publicId)
   ));
   const screenIndex = useSelector(currentScreenIndexSelector);
+  const startedTimes = useSelector(startedTimesSelector);
 
   const user = useSelector(state => R.path(['user', 'info'])(state));
   const updateStatusDelay = 60 * 1000;
@@ -63,7 +64,7 @@ export const ActivityList = ({ inProgress, finishedEvents }) => {
       } else if (aboutContent && aboutContent.en) {
         setMarkDown(aboutContent.en);
       } else {
-        setMarkDown("The authors of this applet have not provided any information!");
+        setMarkDown(t('no_markdown'));
       }
     }
 
@@ -146,14 +147,22 @@ export const ActivityList = ({ inProgress, finishedEvents }) => {
       setCurrentAct(activity);
       setStartActivity(true);
     } else {
-      dispatch(setCurrentActivity(activity.id));
+      if (activity.event
+        && activity.event.data.timedActivity.allow
+        && startedTimes
+        && !startedTimes[activity.id + activity.event.id]
+      ) {
+        dispatch(setActivityStartTime(activity.id + activity.event.id));
+      }
       dispatch(createResponseInProgress({
         activity: activity,
-        event: null,
+        event: activity.event,
         subjectId: user && user._id,
         publicId: currentApplet.publicId || null,
         timeStarted: new Date().getTime()
       }));
+
+      dispatch(setCurrentActivity(activity));
 
       if (currentApplet.publicId) {
         history.push(`/applet/public/${currentApplet.id.split('/').pop()}/${activity.id}`);
@@ -166,13 +175,15 @@ export const ActivityList = ({ inProgress, finishedEvents }) => {
   const handleResumeActivity = () => {
     const activity = currentAct;
 
-    dispatch(setCurrentActivity(activity.id));
-    dispatch(
-      setCurrentScreen({
-        activityId: activity.id,
-        screenIndex: screenIndex || 0,
-      })
-    )
+    dispatch(setCurrentActivity(activity));
+    dispatch(setCurrentScreen({ activityId: activity.id, screenIndex: screenIndex || 0, }))
+    if (activity.event
+      && activity.event.data.timedActivity.allow
+      && startedTimes
+      && !startedTimes[activity.id + activity.event.id]
+    ) {
+      dispatch(setActivityStartTime(activity.id + activity.event.id));
+    }
 
     if (currentApplet.publicId) {
       history.push(`/applet/public/${currentApplet.id.split('/').pop()}/${activity.id}`);
@@ -185,15 +196,22 @@ export const ActivityList = ({ inProgress, finishedEvents }) => {
   const handleRestartActivity = () => {
     const activity = currentAct;
 
-    dispatch(setCurrentActivity(activity.id));
+    dispatch(setCurrentActivity(activity));
     dispatch(createResponseInProgress({
       activity: activity,
-      event: null,
+      event: activity.event,
       subjectId: user?._id,
       publicId: currentApplet.publicId || null,
       timeStarted: new Date().getTime()
     }));
     dispatch(setAnswer({ activityId: activity.id }))
+    if (activity.event
+      && activity.event.data.timedActivity.allow
+      && startedTimes
+      && !startedTimes[activity.id + activity.event.id]
+    ) {
+      dispatch(setActivityStartTime(activity.id + activity.event.id));
+    }
 
     if (currentApplet.publicId) {
       history.push(`/applet/public/${currentApplet.id.split('/').pop()}/${activity.id}`);
