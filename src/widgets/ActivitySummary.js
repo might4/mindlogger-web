@@ -63,7 +63,7 @@ const Summary = (props) => {
         const reportMessages = [];
         let cumActivities = [];
         activity.messages.forEach((msg) => {
-          const { jsExpression, message, outputType, nextActivity } = msg;
+          const { jsExpression, message, outputType, nextActivity, hideActivity } = msg;
 
           const variableName = jsExpression.split(/[><]/g)[0];
           const category = variableName.trim().replace(/\s/g, '__');
@@ -74,7 +74,7 @@ const Summary = (props) => {
           }
 
           if (expr.evaluate(variableScores)) {
-            if (nextActivity) cumActivities.push(nextActivity);
+            if (nextActivity && (hideActivity || hideActivity === undefined)) cumActivities.push(nextActivity);
 
             reportMessages.push({
               category,

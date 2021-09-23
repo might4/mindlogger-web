@@ -103,7 +103,8 @@ export const ActivityList = ({ inProgress, finishedEvents }) => {
     const notShownActs = [];
     for (let index = 0; index < appletData.activities.length; index++) {
       const act = appletData.activities[index];
-      if (act.messages && (act.messages[0].nextActivity || act.messages[1].nextActivity)) notShownActs.push(act);
+      const { messages } = act;
+      if (messages && (messages[0].nextActivity || messages[1].nextActivity)) notShownActs.push(act);
     }
     const appletActivities = [];
 
@@ -137,7 +138,7 @@ export const ActivityList = ({ inProgress, finishedEvents }) => {
 
   const checkActivityIsShown = (name, messages) => {
     if (!name || !messages) return true;
-    return _.findIndex(messages, { nextActivity: name }) === -1;
+    return _.findIndex(messages, obj => obj.nextActivity === name && (obj.hideActivity || obj.hideActivity === undefined)) === -1;
   }
 
   const onPressActivity = (activity) => {
@@ -236,7 +237,7 @@ export const ActivityList = ({ inProgress, finishedEvents }) => {
                 onClick={openAboutPage}
                 variant="link"
               >
-                { t('About.about') }
+                {t('About.about')}
               </Button>
             </Card.Body>
           </Card>
@@ -263,7 +264,7 @@ export const ActivityList = ({ inProgress, finishedEvents }) => {
         <Modal.Header closeButton>
           <Modal.Title>{t('additional.resume_activity')}</Modal.Title>
         </Modal.Header>
-          <Modal.Body>{t('additional.activity_resume_restart')}</Modal.Body>
+        <Modal.Body>{t('additional.activity_resume_restart')}</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleRestartActivity}>
             {t('additional.restart')}
