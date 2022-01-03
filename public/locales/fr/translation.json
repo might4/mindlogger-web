@@ -184,5 +184,6 @@
     "child_score_on_subscale": "Le score de votre enfant pour la sous-échelle {{name}} est de",
     "share_report": "rapport de partage"
   },
-  "no_markdown": "Les auteurs de cette applet n'ont fourni aucune information !"
+  "no_markdown": "Les auteurs de cette applet n'ont fourni aucune information !",
+  "no_applets": "Vous n'avez actuellement pas d'applets."
 }
